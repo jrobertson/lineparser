@@ -21,9 +21,9 @@
     patterns = [
       [:root, 'resources: :resources', :resources],
       [:root, ':resource', :resource],
-      [:resource, 'model', :model],
-      [:model, ':class_name', :model_class],
-      [:model_class, /orange (\w+)/, :model_class_attribute],
+        [:resource, 'model', :model],
+          [:model, ':class_name', :model_class],
+            [:model_class, /orange (\w+)/, :model_class_attribute],
       [:all, /#/]
     ]
 
