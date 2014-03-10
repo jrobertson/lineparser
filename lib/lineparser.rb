@@ -14,6 +14,8 @@ class LineParser
       String: lambda do |s, pattern|
 
         labels = []
+
+        pattern.gsub!(/\+/,"\+")
         r = s.match(/#{pattern.gsub(/:\w+/) {|x| labels << x; '(\\w+)'}}/)
 
         if r then
