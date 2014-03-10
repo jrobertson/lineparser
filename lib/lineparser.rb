@@ -41,6 +41,7 @@ class LineParser
     end
 
     @tree_patterns =  hpatterns[:root].reverse
+
   end
 
   def parse(s)
@@ -76,7 +77,7 @@ class LineParser
         
         if found then
           children = nil
-          children = scan(found.last, x[1..-1]) if found.last.is_a? Array
+          children = scan(found[3..-1], x[1..-1]) if found.last.is_a? Array
           records << [found.first, params, x, children]
         end
       end
