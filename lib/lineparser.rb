@@ -16,7 +16,7 @@ class LineParser
         labels = []
 
         pattern.gsub!('+',"\\\\+")
-        r = s.match(/#{pattern.gsub(/:\w+/) {|x| labels << x; '(\\w+)'}}/)
+        r = s.match(/#{pattern.gsub(/:\w+/) {|x| labels << x; '(\\S+)'}}/)
 
         if r then
           params = Hash[*labels.zip(r.captures).flatten(1)]
@@ -70,7 +70,7 @@ class LineParser
       if found then
         children = nil
         children = scan(found.last, x[1..-1]) if found.last.is_a? Array
-        records << [found.first, params, x, children]
+        records << [found[2], params, x, children]
       else
 
         found = xpatterns.detect do |_, pattern| 
@@ -80,7 +80,7 @@ class LineParser
         if found then
           children = nil
           children = scan(found[3..-1], x[1..-1]) if found.last.is_a? Array
-          records << [found.first, params, x, children]
+          records << [found[2], params, x, children]
         end
       end
     end
@@ -116,30 +116,14 @@ patterns = [
   [:resource, 'model', :model],
   [:model, ':class_name', :model_class],
   [:model_class, /orange (\w+)/, :model_class_attribute],
-  [:all, /#/]
+  [:all, /#/, :comment]
 ]
 
 lp = LineParser.new patterns
 r = lp.parse lines
 #=>  
-[
-  [:root, {":resources"=>"posts"}, ["resources: posts"], nil], 
-  [:all, {:captures=>[]}, ["# winning"], nil], 
-  [:all, {:captures=>[]}, ["#"], nil], 
-  [:root, {":resource"=>"post"}, ["post", ["model", ["Post", ["orange 123"], ["fff"]]]],
-    [[:resource, {}, ["model", ["Post", ["orange 123"], ["fff"]]],
-      [[:model, {":class_name"=>"Post"}, ["Post", ["orange 123"], ["fff"]], 
-        [[:model_class, {:captures=>["123"]}, ["orange 123"], nil]]
-      ]]
-    ]]
-  ], 
-  [:root, {":resource"=>"comments"}, ["comments", ["model", ["Comment", ["orange 576"], ["ggg"]]]],
-    [[:resource, {}, ["model", ["Comment", ["orange 576"], ["ggg"]]], 
-      [[:model, {":class_name"=>"Comment"}, ["Comment", ["orange 576"], ["ggg"]],
-        [[:model_class, {:captures=>["576"]}, ["orange 576"], nil]]
-      ]]
-    ]]
-  ]
-] 
-
+ => [
+  [:app_path, {":app_path"=>"/tmp"}, ["app_path: /tmp"], nil], 
+  [:app, {":app"=>"blog"}, ["app: blog"], nil], 
+  [:resources, {":resources"=>"posts"}, ["resources: posts"], ...
 =end
