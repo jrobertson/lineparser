@@ -7,7 +7,7 @@ require 'line-tree'
 
 class LineParser
 
-  def initialize(patterns=[])
+  def initialize(patterns=[], lines=nil)
 
     @h = {
 
@@ -44,10 +44,16 @@ class LineParser
 
     @tree_patterns =  hpatterns[:root].reverse
 
+    parse lines if lines
+
   end
 
   def parse(s)
-    scan @tree_patterns, LineTree.new(s).to_a
+    @a = scan @tree_patterns, LineTree.new(s).to_a
+  end
+
+  def to_xml
+    Rexle.new xmlize(@a) if @a
   end
 
   private
@@ -87,6 +93,30 @@ class LineParser
 
     return records
   end
+
+  def xmlize(rows)
+
+    r = rows.map do |label, h, lines, children|
+
+      new_h = h.inject({}) do |r,k| 
+
+        if k.first == :captures then
+
+          k[-1].map.with_index.to_a.inject({}) do |r2,x|
+            r.merge! ('captures' + x[-1].to_s).to_sym => x[0] 
+          end
+        else
+          r.merge k[0][/\w+/] => k[-1]
+        end
+      end
+
+      xml_children = children ? xmlize(children) : nil
+      [label, join(lines), new_h, xml_children]
+    end
+   
+    r.flatten(1)
+  end
+
 end
 
 
