@@ -53,7 +53,7 @@ class LineParser
   end
 
   def to_xml
-    Rexle.new xmlize(@a) if @a
+    Rexle.new(xmlize(@a)).xml if @a
   end
 
   private
