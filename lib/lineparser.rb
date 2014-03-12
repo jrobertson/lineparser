@@ -52,11 +52,21 @@ class LineParser
     @a = scan @tree_patterns, LineTree.new(s).to_a
   end
 
+  def to_a
+    @a
+  end
+
   def to_xml
-    Rexle.new(xmlize(@a)).xml if @a
+    Rexle.new(xmlize(@a).inject([:root, '', {}]){|r,x| r << x}).xml if @a
   end
 
   private
+
+  def join(lines, indent='')
+    lines.map do |x|
+      indent + (x.is_a?(Array) ? join(x, indent + '  ') : x)
+    end.join("\n")
+  end
 
   def scan(xpatterns, items)
 
@@ -96,7 +106,9 @@ class LineParser
 
   def xmlize(rows)
 
-    r = rows.map do |label, h, lines, children|
+    r = rows.map do |row|
+
+      label, h, lines, children = row
 
       new_h = h.inject({}) do |r,k| 
 
@@ -110,11 +122,12 @@ class LineParser
         end
       end
 
-      xml_children = children ? xmlize(children) : nil
-      [label, join(lines), new_h, xml_children]
+      c = children ? xmlize(children) : []
+
+      [label, join(lines), new_h, *c]
     end
    
-    r.flatten(1)
+    r
   end
 
 end
