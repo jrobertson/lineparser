@@ -90,7 +90,7 @@ Here's an example:
       ]
 
     lp = LineParser.new patterns
-    r = lp.parse lines
+    lp.to_xml
 
 output:
 
