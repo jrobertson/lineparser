@@ -115,7 +115,7 @@ class LineParser
         if k.first == :captures then
 
           k[-1].map.with_index.to_a.inject({}) do |r2,x|
-            r.merge! ('captures' + x[-1].to_s).to_sym => x[0] 
+            r.merge! ('captures' + x[-1].to_s).to_sym => x[0] if x[-1]
           end
         else
           r.merge k[0][/\w+/] => k[-1]
