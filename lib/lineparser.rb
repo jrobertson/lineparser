@@ -70,12 +70,14 @@ class LineParser
 
   def scan(xpatterns, items)
 
+    puts 'xpatterns : ' + xpatterns.inspect
     records = []
 
     while items.any? do
 
       x = items.shift
-      params = nil
+      puts 'x : '  + x.inspect
+      params, context = nil, nil
 
       xpatterns = [xpatterns] unless xpatterns[0].is_a? Array
 
@@ -84,19 +86,34 @@ class LineParser
       end
 
       if found then
+
         children = nil
         children = scan(found.last, x[1..-1]) if found.last.is_a? Array
         records << [found[2], params, x, children]
+
       else
 
-        found = xpatterns.detect do |_, pattern| 
-          params = @h[pattern.class.to_s.to_sym].call x.first, pattern
+        found = xpatterns.detect do |_, pattern, id|
+
+          if pattern == :root then 
+
+            found = @tree_patterns.detect do |_, pattern2, id|
+              params = @h[pattern2.class.to_s.to_sym].call x.first, pattern2
+              context = id if params
+            end
+
+          else
+
+            params = @h[pattern.class.to_s.to_sym].call x.first, pattern
+            context = id if params
+          end
         end
         
         if found then
+
           children = nil
           children = scan(found[3..-1], x[1..-1]) if found.last.is_a? Array
-          records << [found[2], params, x, children]
+          records << [context, params, x, children]
         end
       end
     end
