@@ -70,13 +70,12 @@ class LineParser
 
   def scan(xpatterns, items)
 
-    puts 'xpatterns : ' + xpatterns.inspect
     records = []
 
     while items.any? do
 
       x = items.shift
-      puts 'x : '  + x.inspect
+
       params, context = nil, nil
 
       xpatterns = [xpatterns] unless xpatterns[0].is_a? Array
