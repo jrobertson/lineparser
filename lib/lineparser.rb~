@@ -29,7 +29,8 @@ class LineParser
         r = s.match(regex)
 
         if r then
-          {captures: r.captures}
+          h = {captures: r.captures}          
+          r.names.inject(h) {|rn,x| rn.merge(x.to_sym => r[x])} if r.names
         end
       end
     }

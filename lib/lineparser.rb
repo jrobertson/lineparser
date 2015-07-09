@@ -7,8 +7,9 @@ require 'line-tree'
 
 class LineParser
 
-  def initialize(patterns=[], lines=nil)
+  def initialize(patterns=[], lines=nil, ignore_blank_lines: true)
 
+    @ibl = ignore_blank_lines
     @h = {
 
       String: lambda do |s, pattern|
@@ -50,7 +51,7 @@ class LineParser
   end
 
   def parse(s)
-    @a = scan @tree_patterns, LineTree.new(s).to_a
+    @a = scan @tree_patterns, LineTree.new(s, ignore_blank_lines: @ibl).to_a
   end
 
   def to_a
