@@ -17,7 +17,7 @@ class LineParser
         labels = []
 
         pattern.gsub!('+',"\\\\+")
-        r = s.match(/#{pattern.gsub(/:\w+/) {|x| labels << x; '(\\S+)'}}/)
+        r = s.match(/#{pattern.gsub(/:\w+/) {|x| labels << x; '([^\\n]*)'}}/)
 
         if r then
           params = Hash[*labels.zip(r.captures).flatten(1)]
