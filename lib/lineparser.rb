@@ -84,7 +84,7 @@ class LineParser
     
         puts 'v:' + v.inspect if @debug
     
-          h[k] = v.flat_map do |row| 
+          a3 = v.flat_map do |row| 
 
             a2 = []
 
@@ -108,6 +108,8 @@ class LineParser
             (key.empty? or key == a2) ? a2 : {key => a2}
 
           end
+          
+          h[k] = a3.length > 1 ? a3 : a3.first
     
       end
     
