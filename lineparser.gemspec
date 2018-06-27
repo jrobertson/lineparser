@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'lineparser'
-  s.version = '0.1.16'
+  s.version = '0.1.17'
   s.summary = 'Lineparser is suited to parsing configuration files, however it can parse any type of text file which has repeating patterns identified by a heading etc.'
   s.authors = ['James Robertson']
   s.files = Dir['lib/**/*.rb']

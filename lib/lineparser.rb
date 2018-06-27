@@ -7,9 +7,9 @@ require 'line-tree'
 
 class LineParser
 
-  def initialize(patterns=[], lines=nil, ignore_blank_lines: true)
+  def initialize(patterns=[], lines=nil, ignore_blank_lines: true, debug: true)
 
-    @ibl = ignore_blank_lines
+    @ibl, @debug = ignore_blank_lines, debug
     @h = {
 
       String: lambda do |s, pattern|
@@ -51,11 +51,19 @@ class LineParser
   end
 
   def parse(s)
+    
     @a = scan @tree_patterns, LineTree.new(s, ignore_blank_lines: @ibl).to_a
+    @h = build_hash @a
+    @a
+    
   end
 
   def to_a
     @a
+  end
+  
+  def to_h()
+    @h
   end
 
   def to_xml
@@ -63,6 +71,54 @@ class LineParser
   end
 
   private
+  
+  
+  def build_hash(a)
+
+    def filter(h2)
+    
+      h = {}
+      puts 'h2: ' + h2.inspect if @debug
+    
+      h2.each do |k, v|
+    
+        puts 'v:' + v.inspect if @debug
+    
+          h[k] = v.flat_map do |row| 
+
+            a2 = []
+
+            if row[3] and row[3].any? then
+              
+              puts 'row[3][0][1]: ' + row[3][0][1].inspect if @debug
+              
+              if row[3][0][1].has_key? :captures then
+                
+                a2 = row[3].map {|x| x[2].first }
+
+              else
+                a2 = filter(row[3].group_by {|x| x.first })
+              end
+              
+            else
+              a2 = row[1].values.first
+            end
+
+            key = row[1].values.first
+            (key.empty? or key == a2) ? a2 : {key => a2}
+
+          end
+    
+      end
+    
+      return h
+    end
+    
+    h3 = a.group_by {|x| x.first }
+        
+    filter(h3)    
+    
+  end  
 
   def join(lines, indent='')
     lines.map do |x|
