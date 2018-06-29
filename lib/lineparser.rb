@@ -51,10 +51,11 @@ class LineParser
   end
 
   def parse(s)
-    
-    @a = scan @tree_patterns, LineTree.new(s, ignore_blank_lines: @ibl).to_a
-    @h = build_hash @a
-    @a
+
+    puts 'inside parse()' if @debug
+    a = scan @tree_patterns, LineTree.new(s, ignore_blank_lines: @ibl).to_a
+    @h2 = build_hash a
+    @a = a
     
   end
 
@@ -63,7 +64,7 @@ class LineParser
   end
   
   def to_h()
-    @h
+    @h2
   end
 
   def to_xml
@@ -88,6 +89,9 @@ class LineParser
 
             a2 = []
 
+            puts 'row: ' + row.inspect
+            puts 'row[3]: ' + row[3].inspect
+
             if row[3] and row[3].any? then
               
               puts 'row[3][0][1]: ' + row[3][0][1].inspect if @debug
@@ -104,7 +108,8 @@ class LineParser
               a2 = row[1].values.first
             end
 
-            key = row[1].values.first
+            key = row[1].values.first            
+            key ||= a2
             (key.empty? or key == a2) ? a2 : {key => a2}
 
           end
@@ -120,7 +125,7 @@ class LineParser
         
     filter(h3)    
     
-  end  
+  end 
 
   def join(lines, indent='')
     lines.map do |x|
@@ -129,6 +134,8 @@ class LineParser
   end
 
   def scan(xpatterns, items)
+    
+    puts 'inside scan()' if @debug
 
     records = []
 
@@ -143,6 +150,8 @@ class LineParser
       found = @patterns.detect do |_, pattern| 
         params = @h[pattern.class.to_s.to_sym].call x.first, pattern
       end
+      
+      puts 'found: ' + found.inspect if @debug
 
       if found then
 
@@ -152,7 +161,11 @@ class LineParser
 
       else
 
+        puts 'xpatterns: ' + xpatterns.inspect if @debug
+        
         found = xpatterns.detect do |_, pattern, id|
+        
+          puts 'found2: ' + found.inspect if @debug
 
           if pattern == :root then 
 
@@ -160,10 +173,19 @@ class LineParser
               params = @h[pattern2.class.to_s.to_sym].call x.first, pattern2
               context = id if params
             end
-
+            
+            puts 'found3: ' + found.inspect if @debug
+            
           else
 
+            if @debug then
+              puts '@h: ' + @h.inspect
+              puts 'pattern: ' + pattern.inspect
+              puts 'x.first: ' + x.first.inspect
+            end
+            
             params = @h[pattern.class.to_s.to_sym].call x.first, pattern
+            puts 'params: ' + params.inspect if @debug
             context = id if params
           end
         end
