@@ -7,7 +7,7 @@ require 'line-tree'
 
 class LineParser
 
-  def initialize(patterns=[], lines=nil, ignore_blank_lines: true, debug: true)
+  def initialize(patterns=[], lines=nil, ignore_blank_lines: true, debug: false)
 
     @ibl, @debug = ignore_blank_lines, debug
     @h = {
@@ -68,7 +68,9 @@ class LineParser
   end
 
   def to_xml
-    Rexle.new(xmlize(@a).inject([:root, '', {}]){|r,x| r << x}).xml if @a
+    raw_doc = xmlize(@a).inject([:root, {}, '']){|r,x| r << x}
+    puts 'raw_doc: ' + raw_doc.inspect if @debug
+    Rexle.new(raw_doc).xml if @a
   end
 
   private
@@ -96,7 +98,7 @@ class LineParser
               
               puts 'row[3][0][1]: ' + row[3][0][1].inspect if @debug
               
-              if row[3][0][1].has_key? :captures then
+              if row[3][0][1].has_key? :captures and row[3][0][1][:captures].any? then
                 
                 a2 = row[3].map {|x| x[2].first }
 
@@ -210,8 +212,10 @@ class LineParser
 
       new_h = h.inject({}) do |r,k| 
 
-        if k.first == :captures then
-
+        if k.first == :captures and k.last.any? then
+          
+          puts 'k: ' + k.inspect if @debug
+          
           k[-1].map.with_index.to_a.inject({}) do |r2,x|
             x[0] ? r.merge!(('captures' + x[-1].to_s).to_sym => x[0]) : r
           end
@@ -222,7 +226,7 @@ class LineParser
 
       c = children ? xmlize(children) : []
 
-      [label, join(lines), new_h, *c]
+      [label, new_h, join(lines), *c]
     end
    
     r
